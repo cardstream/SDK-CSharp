@@ -9,7 +9,7 @@
 # Introduction
 This C Sharp SDK provides an easy method to integrate with the payment gateway.
  - The Gateway.cs file contains the main body of the SDK.
- - The HomeController.cs file is intended as a minimal guide to demonstrate a complete 3DSv2 authentication process. It has been extracted from an ASP.Net website and can be run by placing back into a a similar application.
+ - The HomeController.cs file is intended as a minimal guide to demonstrate a complete 3DSv2 authentication process. It has been extracted from an ASP.Net website and can be run by placing back into a similar application.
 
 # Prerequisites
 
