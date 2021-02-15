@@ -15,7 +15,6 @@ This C Sharp SDK provides an easy method to integrate with the payment gateway.
 
 - The SDK requires the following prerequisites to be met in order to function correctly:
     - .Net Framework v4.7.2 or later.
-    - SSL **NB: HTTPS is expected to be in place as the payment gateway will respond over SSL when redirecting the user's browser. Failure to provide an environment where HTTPS traffic is possible, will result in the SDK failing***
 
 > Please note that we can only offer support for the SDK itself (Gateway.cs). While every effort has been made to ensure the sample code is complete and bug free, it is only a guide and cannot be used in a production environment.
 
