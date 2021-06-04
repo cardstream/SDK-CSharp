@@ -29,9 +29,9 @@ namespace Gateway
         // 3DS merchantId = 100856, with secret Threeds2Test60System
 
 
-        public Gateway(string merchantID = "100856", string merchantSecret = "Threeds2Test60System",
-        string directUrl = "https://test.3ds-pit.com/direct/",
-        string hostedUrl = "https://test.3ds-pit.com/hosted/",
+        public Gateway(string merchantID = "100856", string merchantSecret = "Circle4Take40Idea",
+        string directUrl = "https://gateway.cardstream.com/direct/",
+        string hostedUrl = "https://gateway.cardstream.com/hosted/",
         string proxyUrl = null)
         {
             this.merchantID = merchantID;
@@ -69,8 +69,8 @@ namespace Gateway
         /// </summary>
         /// <param name="request"> Request data </params>
         /// <param name="options">  Not currently used </params>
-        public Dictionary<string, string> DirectRequest(Dictionary<string, string> requestFlattened, 
-			Dictionary<string, string> options = null)
+        public Dictionary<string, string> DirectRequest(Dictionary<string, string> requestFlattened,
+            Dictionary<string, string> options = null)
         {
             string secret;
             string directUrl;
@@ -225,13 +225,14 @@ namespace Gateway
         /// </summary>
         /// <param name="request"> Dictionary<string, string> Request data </params>
         /// <param name="options"> Not currently used </params>
-        public string HostedRequest(Dictionary<string, object> request,
+        public string HostedRequest(Dictionary<string, string> request,
                    Dictionary<string, string> options = null)
         {
             string secret;
             string directUrl;
             string hostedUrl;
-            PrepareRequest(request, null, out secret, out directUrl, out hostedUrl);
+
+            PrepareRequest(request, null, out secret, out directUrl, out hostedUrl);        
 
             if (!request.ContainsKey("redirectURL"))
             {
@@ -242,15 +243,22 @@ namespace Gateway
 
             if (!string.IsNullOrEmpty(secret))
             {
-                request["signature"] = Sign(NestedDictionaryAdapter(request), secret);
+                request["signature"] = Sign(request, secret);
             }
 
             var ret = new StringBuilder();
-
-            var formAttrs = options.ContainsKey("formAttrs") ? options["formAttrs"] : "";
             var action = WebUtility.HtmlEncode(this.hostedUrl);
+            string formAttrs = "";
 
-            ret.Append($@"<form method=""post"" {formAttrs} action=""{action}"" /> \n");
+            if (options != null)
+            {
+                formAttrs = options.ContainsKey("formAttrs") ? options["formAttrs"] : "";
+                ret.Append($@"<form method=""post"" {formAttrs} action=""{action}"" /> \n");
+            } 
+            else
+            {
+                ret.Append($@"<form method=""post"" action=""{action}"" /> \n");
+            }
 
 
             foreach (var name in request.Keys)
@@ -258,29 +266,38 @@ namespace Gateway
                 ret.Append(FieldToHtml(name, request[name]));
             }
 
-            var submitAttrs = options.ContainsKey("submitAttrs") ? options["submitAttrs"] : "";
-
-            ret.Append(submitAttrs);
-
-            string submitElement;
-            if (options.ContainsKey("submitImage"))
+            string submitAttrs = "";
+            string submitElement = "";
+            
+            if (options != null)
             {
-                submitElement = $"<input {submitAttrs}  type=\"image\" src=\""
-                          + WebUtility.HtmlEncode(options["submitImage"]) + "\" />\n";
-
-            }
-            else if (options.ContainsKey("submitHtml"))
+                submitAttrs = options.ContainsKey("submitAttrs") ? options["submitAttrs"] : "";
+                ret.Append(submitAttrs);
+            }      
+                        
+            if (options != null)
             {
-                submitElement = $"<button type=\"submit\" {submitAttrs} >"
-                          + options["submitHtml"] + "</button>\n";
+                if (options.ContainsKey("submitImage"))
+                {
+                    submitElement = $"<input {submitAttrs}  type=\"image\" src=\""
+                              + WebUtility.HtmlEncode(options["submitImage"]) + "\" />\n";
+                }
+                else if (options.ContainsKey("submitHtml"))
+                {
+                    submitElement = $"<button type=\"submit\" {submitAttrs} >"
+                              + options["submitHtml"] + "</button>\n";
+                }
+                else if (options.ContainsKey("submitText"))
+                {
+                    submitElement = $"<input {submitAttrs} type=\"submit\" value=\""
+                   + (options.ContainsKey("submitText") ? WebUtility.HtmlEncode(options["submitText"]) : "Pay Now")
+                   + "\" />\n";
+                }
             }
             else
             {
-                submitElement = $"<input {submitAttrs} type=\"submit\" value=\""
-                   + (options.ContainsKey("submitText") ? WebUtility.HtmlEncode(options["submitText"]) : "Pay Now")
-                   + "\" />\n";
+                submitElement = $"<input {submitAttrs} type=\"submit\" value=\"Pay now\" />\n";
             }
-
 
             ret.Append(submitElement + "</form>\n");
 
@@ -532,6 +549,8 @@ namespace Gateway
                 StringComparer.Ordinal);
             var encodedBody = GetUrlEncodedBody(encodedFields);
 
+            encodedBody = encodedBody.Replace("%0D", "");
+
             var bytes = Encoding.UTF8.GetBytes(encodedBody + secret);
 
             string signature;
@@ -706,6 +725,7 @@ namespace Gateway
                 throw new InvalidOperationException("Incorrectly signed response from Payment Gateway");
             }
 
+            response.Add("signature", signature);
             return true;
         }
 
