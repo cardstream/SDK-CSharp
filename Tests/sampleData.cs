@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Cardstream_Gateway
+namespace Gateway
 {
     class sampleData
     {
