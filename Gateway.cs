@@ -30,8 +30,8 @@ namespace Gateway
 
 
         public Gateway(string merchantID = "100856", string merchantSecret = "Circle4Take40Idea",
-        string directUrl = "https://gateway.cardstream.com/direct/",
-        string hostedUrl = "https://gateway.cardstream.com/hosted/",
+        string directUrl = "https://gateway.example.com/direct/",
+        string hostedUrl = "https://gateway.example.com/hosted/",
         string proxyUrl = null)
         {
             this.merchantID = merchantID;
