@@ -1,4 +1,4 @@
-using Cardstream_Gateway;
+using Gateway;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +44,7 @@ namespace Gateway
 
 
             testSample = new Dictionary<string, string>{
-                {"a" , "one"}, {"b" , "a £ sign"}};
+                {"a" , "one"}, {"b" , "a Â£ sign"}};
             Assert.True(gateway.Sign(testSample).StartsWith("13637"));
 
             testSample = new Dictionary<string, string>{
